@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "lars_reactor/reactor_buffer.h"
+#include "lars_reactor/tcp_conn.h"
 
 struct message {
   char data[m4K];
@@ -149,7 +150,12 @@ void TcpServer::DoAccept() {
         std::cerr << "accept error\n";
       }
     } else {
-      this->loop_->AddIoEvent(connfd, ServerReadCallback, EPOLLIN, &msgs);
+      auto conn = std::make_shared<TcpConn>(connfd, loop_);
+      if (conn == nullptr) {
+        std::cerr << "new tcp connection error!\n";
+        exit(1);
+      }
+      std::cout << "get new connection success!\n";
       break;
     }
   }
